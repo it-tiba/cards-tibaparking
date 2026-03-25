@@ -24,18 +24,8 @@ const vcf = [
   'END:VCARD'
 ].filter(Boolean).join('\r\n');
 
-// Try direct navigation (opens "Add to Contacts" on iOS/Android)
-const blob = new Blob([vcf], { type: 'text/x-vcard' });
-const url = URL.createObjectURL(blob);
-window.location.href = url;
-
-// Fallback after 2 seconds if direct navigation didn't work
-setTimeout(function() {
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${n.replace(/\s+/g, '_') || 'contact'}.vcf`;
-  a.click();
-}, 2000);
+// data: URI — most reliable for triggering native contact handler
+window.location.href = 'data:text/x-vcard;charset=utf-8,' + encodeURIComponent(vcf);
 </script>
 <p style="font-family:sans-serif;text-align:center;margin-top:40px;color:#666;">
   Opening contact card&hellip;
@@ -69,8 +59,24 @@ const vcf = [
   'END:VCARD'
 ].filter(Boolean).join('\r\n');
 
-// data: URI — most reliable for triggering native contact handler
-window.location.href = 'data:text/x-vcard;charset=utf-8,' + encodeURIComponent(vcf);
+// Create blob and navigate to it — triggers native contact handler on iOS
+const blob = new Blob([vcf], { type: 'text/vcard' });
+const url = URL.createObjectURL(blob);
+
+// On iOS Safari, navigating to a vcard blob opens "Add to Contacts"
+// On Android, we need the download approach
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+if (isIOS) {
+  window.location.href = url;
+} else {
+  // Android: auto-click a download link, most Android browsers will
+  // open the vcf with the Contacts app after download
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (n.replace(/\s+/g, '_') || 'contact') + '.vcf';
+  document.body.appendChild(a);
+  a.click();
+}
 </script>
 <p style="font-family:sans-serif;text-align:center;margin-top:40px;color:#666;">
   Opening contact card&hellip;

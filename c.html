@@ -42,3 +42,38 @@ setTimeout(function() {
 </p>
 </body>
 </html>
+ilya@Mac business_cards_app % cat web/c.html
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Contact Card</title></head>
+<body>
+<script>
+const p = new URLSearchParams(window.location.search);
+const n = p.get('n') || '';
+const e = p.get('e') || '';
+const ph = p.get('p') || '';
+const c = p.get('c') || '';
+const t = p.get('t') || '';
+const parts = n.split(' ');
+const first = parts[0] || '';
+const last = parts.slice(1).join(' ') || '';
+
+const vcf = [
+  'BEGIN:VCARD',
+  'VERSION:3.0',
+  `N:${last};${first};;;`,
+  `FN:${n}`,
+  c ? `ORG:${c}` : '',
+  t ? `TITLE:${t}` : '',
+  ph ? `TEL;TYPE=CELL:${ph}` : '',
+  e ? `EMAIL:${e}` : '',
+  'END:VCARD'
+].filter(Boolean).join('\r\n');
+
+// data: URI — most reliable for triggering native contact handler
+window.location.href = 'data:text/x-vcard;charset=utf-8,' + encodeURIComponent(vcf);
+</script>
+<p style="font-family:sans-serif;text-align:center;margin-top:40px;color:#666;">
+  Opening contact card&hellip;
+</p>
+</body>
+</html>

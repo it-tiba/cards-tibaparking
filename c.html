@@ -24,15 +24,21 @@ const vcf = [
   'END:VCARD'
 ].filter(Boolean).join('\r\n');
 
-const blob = new Blob([vcf], { type: 'text/vcard' });
+// Try direct navigation (opens "Add to Contacts" on iOS/Android)
+const blob = new Blob([vcf], { type: 'text/x-vcard' });
 const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = `${n.replace(/\s+/g, '_') || 'contact'}.vcf`;
-a.click();
+window.location.href = url;
+
+// Fallback after 2 seconds if direct navigation didn't work
+setTimeout(function() {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${n.replace(/\s+/g, '_') || 'contact'}.vcf`;
+  a.click();
+}, 2000);
 </script>
 <p style="font-family:sans-serif;text-align:center;margin-top:40px;color:#666;">
-  Downloading contact card&hellip;
+  Opening contact card&hellip;
 </p>
 </body>
 </html>
